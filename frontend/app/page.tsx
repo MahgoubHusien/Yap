@@ -1,49 +1,78 @@
 'use client';
 
-import React, { useState } from 'react';
-import { loginUser } from '@/lib/api';  // Call the login function instead of createUser
+import React, { useEffect, useState } from 'react';
+import { Home, Video, Users, Sun, Moon } from 'lucide-react';
 
-export default function HomePage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+const HomePage = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const result = await loginUser(username, password);  // Call login API
-      setMessage(`Welcome, ${result.username}!`);
-      // Optionally store the token in local storage or state
-      localStorage.setItem('authToken', result.token);
-    } catch (error) {
-      setMessage('Invalid credentials or error during login');
-      console.error(error);
+  // On mount, check localStorage for saved theme & apply it
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+    setTheme(initialTheme);
+    if (initialTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  // Function to toggle theme
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Login</h1>
-      <form onSubmit={handleSubmit} className="mt-4">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 mb-2 block"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 mb-2 block"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Login
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+      {/* Navbar with Top Icons */}
+      <div className="absolute top-6 flex space-x-6">
+        <Home className="nav-icon" />
+        <Video className="nav-icon" />
+        <Users className="nav-icon" />
+      </div>
+
+      {/* Theme Toggle Button */}
+      <button className="theme-toggle absolute top-6 right-6 flex items-center gap-2" onClick={toggleTheme}>
+        {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+        <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+      </button>
+
+      {/* Hero Section */}
+      <span className="banner-text">The next generation of social interaction</span>
+
+      <h1 className="hero-text">
+        Connect Instantly with <span className="hero-highlight">Yap</span>
+      </h1>
+
+      <p className="hero-subtext">
+        Join free-flowing conversations, meet new people, and explore trending topics in real-time.
+      </p>
+
+      {/* Buttons */}
+      <div className="mt-6 flex space-x-4">
+        <button className="button-primary">⚡ Jump In</button>
+        <button className="button-secondary">Explore Topics</button>
+      </div>
+
+      {/* Test Button */}
+      <div className="mt-10">
+        <button className="test-button" onClick={() => alert(`Current Theme: ${theme}`)}>
+          Test Theme
         </button>
-      </form>
-      {message && <p className="mt-4">{message}</p>}
+      </div>
     </div>
   );
-}
+};
+
+export default HomePage;
