@@ -1,49 +1,90 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { loginUser } from '@/lib/api';  // Call the login function instead of createUser
+import React from "react";
+import { Sparkles } from "lucide-react";
+import { Navbar } from "@/components/Navbar"; // your FloatingDock-based navbar
 
-export default function HomePage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const result = await loginUser(username, password);  // Call login API
-      setMessage(`Welcome, ${result.username}!`);
-      // Optionally store the token in local storage or state
-      localStorage.setItem('authToken', result.token);
-    } catch (error) {
-      setMessage('Invalid credentials or error during login');
-      console.error(error);
-    }
-  };
-
+const HomePage = () => {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Login</h1>
-      <form onSubmit={handleSubmit} className="mt-4">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 mb-2 block"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 mb-2 block"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Login
-        </button>
-      </form>
-      {message && <p className="mt-4">{message}</p>}
+    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white flex flex-col relative">
+      {/* Floating Dock (Navbar) slightly down from the top */}
+      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50">
+        <Navbar />
+      </div>
+
+      {/* HERO SECTION */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 pt-16">
+        {/* Pill Label */}
+        <div className="
+          mx-auto 
+          inline-flex 
+          items-center 
+          justify-center 
+          gap-2 
+          bg-red-100 
+          text-red-500 
+          px-4 py-1 
+          text-sm font-semibold 
+          rounded-full
+        ">
+          <Sparkles className="w-4 h-4" />
+          <span>The next wave in social vibes</span>
+        </div>
+
+
+
+        {/* Main Heading */}
+        <h1 className="hero-text mt-4">
+          Connect Instantly with <span className="hero-highlight">Yap</span>
+        </h1>
+
+        {/* Subheading */}
+        <p className="hero-subtext max-w-xl mx-auto">
+          Join free-flowing conversations, meet new people, and explore trending topics in real-time.
+        </p>
+
+        {/* Buttons with reduced top margin */}
+        <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
+          {/* Primary Button */}
+          <button
+            className="
+              w-36 rounded-full
+              bg-gradient-to-r from-red-500 to-red-600
+              text-white font-semibold py-3 px-6
+              shadow-lg hover:shadow-xl
+              transition-transform hover:scale-105
+            "
+          >
+            👨‍💻Hop In
+          </button>
+
+          {/* Secondary Button */}
+          <button
+            className="
+              w-38 rounded-full border border-gray-300 dark:border-gray-700
+              text-gray-700 dark:text-gray-200
+              py-3 px-6
+              bg-white dark:bg-black
+              hover:bg-gray-100 dark:hover:bg-gray-800
+              shadow-sm hover:shadow
+              transition-colors
+            "
+          >
+            🫧Check Topics
+          </button>
+        </div>
+      </main>
+
+      {/* Reduced padding for the emoji illustration */}
+      <footer className="flex items-center justify-center py-10">
+        <div className="text-8xl md:text-9xl flex space-x-4">
+          <span>✌️</span>
+          <span>🌐</span>
+          <span>🫶</span>
+        </div>
+      </footer>
     </div>
   );
-}
+};
+
+export default HomePage;

@@ -2,20 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Default Light Mode */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-white text-black transition-colors duration-300;
+}
+
+/* Dark Mode */
+.dark body {
+  @apply bg-black text-white;
+}
+
+/* Hero Section Styling */
+.hero-label {
+  /* Pink pill badge */
+  @apply inline-block bg-red-100 text-red-500 
+    px-4 py-1 text-sm font-semibold rounded-full;
+}
+
+.hero-text {
+  @apply text-5xl font-extrabold text-center leading-tight text-gray-900 dark:text-white;
+}
+
+.hero-highlight {
+  @apply text-red-500;
+}
+
+.hero-subtext {
+  @apply text-gray-600 dark:text-gray-400 text-lg text-center mt-4;
+}
+
+/* Buttons */
+.button-primary {
+  @apply bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center transition duration-200;
+}
+
+.button-secondary {
+  @apply border border-gray-800 dark:border-gray-300 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200;
+}
+
+/* Navbar (Top Icons) */
+.nav-icon {
+  @apply w-8 h-8 text-gray-700 dark:text-gray-300 cursor-pointer transition duration-200 hover:text-red-500;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  @apply px-4 py-2 border border-gray-800 dark:border-gray-300 rounded-lg text-gray-800 dark:text-gray-300 cursor-pointer transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2;
+}
+.dark {
+  @apply bg-black text-white;
+}
+
+
+/* Optional “base” layer overrides */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
