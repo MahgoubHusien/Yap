@@ -81,7 +81,7 @@ export const Navbar = () => {
   return (
     <FloatingDock
       // Remove mobileClassName if you don't want the "translate-y-20" behavior on small screens
-      // mobileClassName="translate-y-20"
+      mobileClassName="translate-y-20"
       items={links}
     />
   );

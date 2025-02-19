@@ -78,9 +78,7 @@ const HomePage = () => {
       {/* Reduced padding for the emoji illustration */}
       <footer className="flex items-center justify-center py-10">
         <div className="text-8xl md:text-9xl flex space-x-4">
-          <span>✌️</span>
-          <span>🌐</span>
-          <span>🫶</span>
+
         </div>
       </footer>
     </div>
