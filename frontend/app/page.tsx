@@ -8,7 +8,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white flex flex-col relative">
       {/* Floating Dock (Navbar) slightly down from the top */}
-      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed top-4 sm:top-6 md:top-8 left-1/2 -translate-x-1/2 z-50">
         <Navbar />
       </div>
 
