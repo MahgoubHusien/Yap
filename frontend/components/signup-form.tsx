@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { supabaseClient } from "@/lib/supabaseClient";
 import Link from "next/link";
 
-export function LoginForm({
+
+export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
@@ -28,27 +29,28 @@ export function LoginForm({
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+  
     try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
+      const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
       });
-      
+  
       if (error) {
         alert(error.message);
       } else {
-        // If successful, data contains session info, user, etc.
-        window.location.href = "/dashboard"; // or router.push("/dashboard")
+        // If successful, Supabase sends a confirmation email
+        alert("Signup successful! Check your email to confirm your account.");
+        window.location.href = "/dashboard"; // Redirect to login page after signup
       }
     } catch (err) {
-      console.error("Login error:", err);
-      alert("An error occurred during login");
+      console.error("Signup error:", err);
+      alert("An error occurred during signup");
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   // Function to handle third-party authentication
   // MODIFIED: Replaced fetch() with signInWithOAuth from Supabase
   const handleThirdPartyLogin = async (provider: "apple" | "google") => {
@@ -84,9 +86,9 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
+          <CardTitle className="text-xl">Register</CardTitle>
           <CardDescription>
-            Login with your Apple or Google account
+            Sign Up with your Apple or Google account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -106,7 +108,7 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Apple
+                  Sign Up with Apple
                 </Button>
                 <Button 
                   type="button"
@@ -121,7 +123,7 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Google
+                  Sign Up with Google
                 </Button>
               </div>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -144,12 +146,6 @@ export function LoginForm({
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
                   </div>
                   <Input 
                     id="password" 
@@ -164,16 +160,16 @@ export function LoginForm({
                   className="w-full bg-red-600 text-white hover:bg-red-700"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? 'Signing Up...' : 'Sign Up'}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link
-                    href="/signup" 
+              Have an Account?&nbsp; 
+              <Link
+                    href="/login" 
                     className="text-red-600 underline underline-offset-4 hover:text-red-800"
                 >
-                    Sign Up
+                    Login
                 </Link>
               </div>
             </div>
