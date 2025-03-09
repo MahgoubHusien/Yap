@@ -1,22 +1,22 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { FloatingDock } from "@/components/ui/floating-dock";
 import {
-  IconUserPlus,
+  IconHome,
   IconVideoPlus,
   IconHash,
-  IconMessages,
   IconUsers,
   IconHistory,
   IconSun,
   IconMoon,
+  IconUser,
+  IconMenu2,
+  IconX,
 } from "@tabler/icons-react";
 
-const Navbar = () => {
+const Sidebar = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [showNavbar, setShowNavbar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,8 @@ const Navbar = () => {
     document.documentElement.classList.add(defaultTheme);
   }, []);
 
-  const toggleTheme = () => {
+  const toggleTheme = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent sidebar from closing when toggling theme
     const newTheme = theme === "light" ? "dark" : "light";
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(newTheme);
@@ -38,48 +39,77 @@ const Navbar = () => {
     setTheme(newTheme);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerWidth >= 768) {
-        if (window.scrollY > lastScrollY && window.scrollY > 50) {
-          setShowNavbar(false);
-        } else {
-          setShowNavbar(true);
-        }
-        setLastScrollY(window.scrollY);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
-
   const links = [
-    { title: "User Profiles & Auth", icon: <IconUserPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
-    { title: "Instant Free Talk", icon: <IconVideoPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
-    { title: "Topic-Based Chat", icon: <IconHash className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
-    { title: "Messaging System", icon: <IconMessages className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
-    { title: "Friends & Callbacks", icon: <IconUsers className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
-    { title: "Recent Live Chats", icon: <IconHistory className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
-    {
-      title: "Theme Toggle",
-      icon: theme === "light" ? <IconMoon className="h-full w-full text-neutral-500 dark:text-neutral-300" /> : <IconSun className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-      onClick: toggleTheme,
-    },
+    { title: "Home", icon: <IconHome className="h-6 w-6" />, href: "/" },
+    { title: "Profile", icon: <IconUser className="h-6 w-6" />, href: "/profile" },
+    { title: "Instant Free Talk", icon: <IconVideoPlus className="h-6 w-6" />, href: "#" },
+    { title: "Topic-Based Chat", icon: <IconHash className="h-6 w-6" />, href: "#" },
+    { title: "Friends & Callbacks", icon: <IconUsers className="h-6 w-6" />, href: "#" },
+    { title: "Recent Live Chats", icon: <IconHistory className="h-6 w-6" />, href: "#" },
   ];
 
   if (!hasMounted) return null; // Prevents hydration mismatch
 
   return (
-    <div
-      className={`hidden md:flex fixed top-4 sm:top-10 md:top-8 left-1/2 -translate-x-1/2 z-50 transition-transform duration-700 ease-in-out ${
-        showNavbar ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0"
-      }`}
-    >
-      <FloatingDock items={links} />
-    </div>
+    <>
+      {/* ☰ Hamburger Button (Only Visible When Sidebar is Closed) */}
+      {!isOpen && (
+        <button
+          className="fixed top-4 left-4 z-50 p-2 bg-gray-200 dark:bg-gray-800 rounded-md"
+          onClick={() => setIsOpen(true)}
+        >
+          <IconMenu2 className="h-6 w-6 text-gray-800 dark:text-white" />
+        </button>
+      )}
+
+      {/* Background Overlay (Closes Sidebar When Clicking Outside) */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar (Hidden by Default) */}
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-900 shadow-lg transform transition-transform z-40 ${
+          isOpen ? "translate-x-0" : "-translate-x-64"
+        }`}
+      >
+        {/* Sidebar Header - Menu Title & Close Button */}
+        <div className="py-5 px-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">Menu</h2>
+          <button onClick={() => setIsOpen(false)}>
+            <IconX className="h-6 w-6 text-gray-800 dark:text-white" />
+          </button>
+        </div>
+
+        {/* Sidebar Links */}
+        <nav className="flex flex-col space-y-2 px-4">
+          {links.map((link, index) => (
+            <a
+              key={index}
+              href={link.href}
+              onClick={() => setIsOpen(false)} // Close sidebar when clicking a link
+              className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"
+            >
+              {link.icon}
+              <span>{link.title}</span>
+            </a>
+          ))}
+
+          {/* Theme Toggle (Does Not Close Sidebar) */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all w-full text-left"
+          >
+            {theme === "light" ? <IconMoon className="h-6 w-6" /> : <IconSun className="h-6 w-6" />}
+            <span>Theme Toggle</span>
+          </button>
+        </nav>
+      </div>
+    </>
   );
 };
 
-export default Navbar;
+export default Sidebar;
