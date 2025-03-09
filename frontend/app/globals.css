@@ -21,6 +21,7 @@ body {
   @apply text-4xl sm:text-5xl lg:text-6xl font-extrabold text-center leading-tight text-gray-900 dark:text-white;
 }
 
+
 .hero-highlight {
   @apply text-red-500;
 }
@@ -51,4 +52,13 @@ body {
 /* Mobile Navbar */
 .nav-link {
   @apply text-gray-700 dark:text-gray-200 hover:text-red-500 font-semibold transition-colors;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
