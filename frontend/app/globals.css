@@ -14,15 +14,12 @@ body {
 
 /* Hero Section Styling */
 .hero-label {
-  /* Pink pill badge */
-  @apply inline-block bg-red-100 text-red-500 
-    px-4 py-1 text-sm font-semibold rounded-full;
+  @apply inline-block bg-red-100 text-red-500 px-4 py-1 text-sm font-semibold rounded-full;
 }
 
 .hero-text {
   @apply text-4xl sm:text-5xl lg:text-6xl font-extrabold text-center leading-tight text-gray-900 dark:text-white;
 }
-
 
 .hero-highlight {
   @apply text-red-500;
@@ -41,7 +38,7 @@ body {
   @apply border border-gray-800 dark:border-gray-300 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200;
 }
 
-/* Navbar (Top Icons) */
+/* Navbar Icons */
 .nav-icon {
   @apply w-8 h-8 text-gray-700 dark:text-gray-300 cursor-pointer transition duration-200 hover:text-red-500;
 }
@@ -50,17 +47,8 @@ body {
 .theme-toggle {
   @apply px-4 py-2 border border-gray-800 dark:border-gray-300 rounded-lg text-gray-800 dark:text-gray-300 cursor-pointer transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2;
 }
-.dark {
-  @apply bg-black text-white;
-}
 
-
-/* Optional “base” layer overrides */
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Mobile Navbar */
+.nav-link {
+  @apply text-gray-700 dark:text-gray-200 hover:text-red-500 font-semibold transition-colors;
 }
