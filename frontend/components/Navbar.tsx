@@ -3,86 +3,83 @@
 import React, { useEffect, useState } from "react";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import {
-  IconUserPlus,      // for "User Profiles & Auth"
-  IconVideoPlus,     // for "Instant Free Talk"
-  IconHash,          // for "Topic-Based Chat Rooms" (or use IconMessageCircle)
-  IconMessages,      // for "Messaging System"
-  IconUsers,         // for "Friends List and Callbacks"
-  IconHistory,       // for "Recent Live Chats"
+  IconUserPlus,
+  IconVideoPlus,
+  IconHash,
+  IconMessages,
+  IconUsers,
+  IconHistory,
   IconSun,
   IconMoon,
 } from "@tabler/icons-react";
 
-export const Navbar = () => {
+const Navbar = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [hasMounted, setHasMounted] = useState(false);
 
-  // Load initial theme preference
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+    setHasMounted(true);
+
+    const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
+    const defaultTheme = savedTheme || (prefersDark ? "dark" : "light");
+
+    setTheme(defaultTheme);
+    document.documentElement.classList.add(defaultTheme);
   }, []);
 
-  // Toggle theme
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(newTheme);
     localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    setTheme(newTheme);
   };
 
-  // Replace the links array with your functional requirements
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerWidth >= 768) {
+        if (window.scrollY > lastScrollY && window.scrollY > 50) {
+          setShowNavbar(false);
+        } else {
+          setShowNavbar(true);
+        }
+        setLastScrollY(window.scrollY);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   const links = [
-    {
-      title: "User Profiles & Auth",
-      icon: <IconUserPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-    },
-    {
-      title: "Instant Free Talk",
-      icon: <IconVideoPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-    },
-    {
-      title: "Topic-Based Chat",
-      icon: <IconHash className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-    },
-    {
-      title: "Messaging System",
-      icon: <IconMessages className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-    },
-    {
-      title: "Friends & Callbacks",
-      icon: <IconUsers className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-    },
-    {
-      title: "Recent Live Chats",
-      icon: <IconHistory className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#",
-    },
-    // Keep the theme toggle in the dock
+    { title: "User Profiles & Auth", icon: <IconUserPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
+    { title: "Instant Free Talk", icon: <IconVideoPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
+    { title: "Topic-Based Chat", icon: <IconHash className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
+    { title: "Messaging System", icon: <IconMessages className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
+    { title: "Friends & Callbacks", icon: <IconUsers className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
+    { title: "Recent Live Chats", icon: <IconHistory className="h-full w-full text-neutral-500 dark:text-neutral-300" />, href: "#" },
     {
       title: "Theme Toggle",
-      icon: theme === "light" ? (
-        <IconMoon className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ) : (
-        <IconSun className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
+      icon: theme === "light" ? <IconMoon className="h-full w-full text-neutral-500 dark:text-neutral-300" /> : <IconSun className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
       href: "#",
       onClick: toggleTheme,
     },
   ];
 
+  if (!hasMounted) return null; // Prevents hydration mismatch
+
   return (
-    <FloatingDock
-      // Remove mobileClassName if you don't want the "translate-y-20" behavior on small screens
-      mobileClassName="translate-y-20"
-      items={links}
-    />
+    <div
+      className={`hidden md:flex fixed top-4 sm:top-10 md:top-8 left-1/2 -translate-x-1/2 z-50 transition-transform duration-700 ease-in-out ${
+        showNavbar ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0"
+      }`}
+    >
+      <FloatingDock items={links} />
+    </div>
   );
 };
+
+export default Navbar;
