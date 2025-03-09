@@ -16,14 +16,10 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white flex flex-col relative">
-<<<<<<< HEAD
       {/* Floating Dock (Navbar) slightly down from the top */}
       <div className="fixed top-4 sm:top-6 md:top-8 left-1/2 -translate-x-1/2 z-50">
-        <Navbar />
       </div>
 
-=======
->>>>>>> origin/mobileinterface
       {/* HERO SECTION */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 pt-16">
         {/* Pill Label */}
