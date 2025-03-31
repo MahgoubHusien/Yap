@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // For navigation
 import {
   IconHome,
   IconVideoPlus,
@@ -16,20 +15,13 @@ import {
 } from "@tabler/icons-react";
 
 const Sidebar = () => {
-  const router = useRouter(); // Next.js router
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isOpen, setIsOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
 
   useEffect(() => {
     setHasMounted(true);
 
-    // Check if user is logged in (Assume token exists in localStorage)
-    const token = localStorage.getItem("token"); // Change this based on your auth method
-    setIsLoggedIn(!!token); // If token exists, user is logged in
-
-    // Set theme from local storage
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const defaultTheme = savedTheme || (prefersDark ? "dark" : "light");
@@ -47,18 +39,9 @@ const Sidebar = () => {
     setTheme(newTheme);
   };
 
-  // Redirect user to correct page based on login state
-  const handleProfileClick = () => {
-    if (isLoggedIn) {
-      router.push("/dashboard"); // Redirect to dashboard if logged in
-    } else {
-      router.push("/login"); // Redirect to login if not logged in
-    }
-    setIsOpen(false); // Close sidebar after clicking
-  };
-
   const links = [
     { title: "Home", icon: <IconHome className="h-6 w-6" />, href: "/" },
+    { title: "Profile", icon: <IconUser className="h-6 w-6" />, href: "/login" },
     { title: "Instant Free Talk", icon: <IconVideoPlus className="h-6 w-6" />, href: "#" },
     { title: "Topic-Based Chat", icon: <IconHash className="h-6 w-6" />, href: "#" },
     { title: "Friends & Callbacks", icon: <IconUsers className="h-6 w-6" />, href: "#" },
@@ -114,15 +97,6 @@ const Sidebar = () => {
               <span>{link.title}</span>
             </a>
           ))}
-
-          {/* Profile Button (Redirects Based on Auth State) */}
-          <button
-            onClick={handleProfileClick}
-            className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all w-full text-left"
-          >
-            <IconUser className="h-6 w-6" />
-            <span>Profile</span>
-          </button>
 
           {/* Theme Toggle (Does Not Close Sidebar) */}
           <button
