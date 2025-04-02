@@ -41,6 +41,7 @@ const HomePage = () => {
         {/* Buttons */}
         <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
           {/* Primary Button */}
+          <Link href="/video">
           <button
             onClick={handleHopIn}
             className="w-36 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-3 px-6 shadow-lg hover:shadow-xl transition-transform hover:scale-105"
@@ -48,7 +49,7 @@ const HomePage = () => {
           >
             {loading ? "Connecting..." : "👨‍💻 Hop In"}
           </button>
-
+</Link>
           {/* Secondary Button */}
           <Link href="/topics">
             <button className="w-38 rounded-full border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 px-6 bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm hover:shadow transition-colors">
