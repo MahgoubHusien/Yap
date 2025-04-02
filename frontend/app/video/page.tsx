@@ -20,7 +20,7 @@ const VideoCall = () => {
 
         if (localRef.current) localRef.current.srcObject = stream;
 
-        // Simulate second video (remote) using the same stream
+        // Simulated remote stream for now
         if (remoteRef.current) remoteRef.current.srcObject = stream;
 
       } catch (err) {
@@ -45,25 +45,27 @@ const VideoCall = () => {
       {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-center w-full max-w-5xl">
+          {/* Local Video */}
           <div className="flex flex-col items-center">
-            <span className="mb-1 text-sm text-gray-400">You</span>
+            <span className="mb-2 text-sm text-gray-400">You</span>
             <video
               ref={localRef}
               autoPlay
               playsInline
               muted
-              className="rounded-lg shadow-md w-full max-w-sm border border-red-500"
+              className="rounded-lg shadow-lg w-full max-w-sm aspect-video object-cover border-2 border-red-500"
             />
           </div>
 
+          {/* Remote Video */}
           <div className="flex flex-col items-center">
-            <span className="mb-1 text-sm text-gray-400">Stranger</span>
+            <span className="mb-2 text-sm text-gray-400">Stranger</span>
             <video
               ref={remoteRef}
               autoPlay
               playsInline
-              className="rounded-lg shadow-md w-full max-w-sm border border-blue-500"
+              className="rounded-lg shadow-lg w-full max-w-sm aspect-video object-cover border-2 border-blue-500"
             />
           </div>
         </div>
@@ -71,7 +73,7 @@ const VideoCall = () => {
 
       <button
         onClick={() => window.location.href = "/topics"}
-        className="mt-8 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition"
+        className="mt-10 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition"
       >
         Leave Call
       </button>

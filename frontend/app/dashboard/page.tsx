@@ -1,88 +1,56 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Sparkles } from "lucide-react";
-import { Navbar } from "@/components/Navbar"; // your FloatingDock-based navbar
+import { useState } from 'react';
+import { LogOut } from 'lucide-react';
+import ProfileForm from '@/components/dashboard/ProfileForm';
+import SecurityForm from '@/components/dashboard/SecurityForm';
+import DangerZone from '@/components/dashboard/DangerZone';
 
-const HomePage = () => {
+export default function Dashboard() {
+  const [currentTab, setCurrentTab] = useState<'profile' | 'security' | 'danger'>('profile');
+
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white flex flex-col relative">
-      {/* Floating Dock (Navbar) slightly down from the top */}
-      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50">
-        <Navbar />
-      </div>
+    <div className="flex min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-200">
+      {/* Sidebar */}
+      <aside className="w-64 bg-zinc-100 dark:bg-zinc-900 p-6 border-r border-zinc-200 dark:border-zinc-800 hidden sm:flex flex-col">
+        <h1 className="text-xl font-semibold mb-10 tracking-tight">Yap Inc.</h1>
 
-      {/* HERO SECTION */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 pt-16">
-        {/* Pill Label */}
-        <div className="
-          mx-auto 
-          inline-flex 
-          items-center 
-          justify-center 
-          gap-2 
-          bg-red-100 
-          text-red-500 
-          px-4 py-1 
-          text-sm font-semibold 
-          rounded-full
-        ">
-          <Sparkles className="w-4 h-4" />
-          <span>The next wave in social vibes</span>
-        </div>
+        <nav className="flex flex-col gap-4 text-sm">
+          <TabButton label="Profile" isActive={currentTab === 'profile'} onClick={() => setCurrentTab('profile')} />
+          <TabButton label="Security" isActive={currentTab === 'security'} onClick={() => setCurrentTab('security')} />
+          <TabButton label="Danger Zone" isActive={currentTab === 'danger'} onClick={() => setCurrentTab('danger')} />
+        </nav>
 
+        <button
+          className="mt-auto flex items-center gap-2 text-sm text-red-500 hover:text-red-600"
+          onClick={() => console.log("Log out")}
+        >
+          <LogOut size={16} /> Log Out
+        </button>
+      </aside>
 
-
-        {/* Main Heading */}
-        <h1 className="hero-text mt-4">
-          Connect Instantly with <span className="hero-highlight">Yap</span>
-        </h1>
-
-        {/* Subheading */}
-        <p className="hero-subtext max-w-xl mx-auto">
-          Join free-flowing conversations, meet new people, and explore trending topics in real-time.
-        </p>
-
-        {/* Buttons with reduced top margin */}
-        <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
-          {/* Primary Button */}
-          <button
-            className="
-              w-36 rounded-full
-              bg-gradient-to-r from-red-500 to-red-600
-              text-white font-semibold py-3 px-6
-              shadow-lg hover:shadow-xl
-              transition-transform hover:scale-105
-            "
-          >
-            👨‍💻Hop In
-          </button>
-
-          {/* Secondary Button */}
-          <button
-            className="
-              w-38 rounded-full border border-gray-300 dark:border-gray-700
-              text-gray-700 dark:text-gray-200
-              py-3 px-6
-              bg-white dark:bg-black
-              hover:bg-gray-100 dark:hover:bg-gray-800
-              shadow-sm hover:shadow
-              transition-colors
-            "
-          >
-            🫧Check Topics
-          </button>
-        </div>
+      {/* Main Content */}
+      <main className="flex-1 px-6 py-10 max-w-4xl mx-auto">
+        {currentTab === 'profile' && <ProfileForm />}
+        {currentTab === 'security' && <SecurityForm />}
+        {currentTab === 'danger' && <DangerZone />}
       </main>
-
-      {/* Reduced padding for the emoji illustration */}
-      <footer className="flex items-center justify-center py-10">
-        <div className="text-8xl md:text-9xl flex space-x-4">
-
-        </div>
-      </footer>
     </div>
   );
-};
+}
 
-export default HomePage;
+function TabButton({ label, isActive, onClick }: { label: string; isActive: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`text-left px-3 py-2 rounded-md transition text-sm
+        ${
+          isActive
+            ? 'bg-zinc-200 dark:bg-zinc-800 text-red-600 font-semibold'
+            : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+        }`}
+    >
+      {label}
+    </button>
+  );
+}
