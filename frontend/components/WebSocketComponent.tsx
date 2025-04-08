@@ -4,9 +4,15 @@ export default function WebSocketComponent() {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // Connect to backend WebSocket endpoint
-    // Adjust "ws://localhost:8080" if your backend is deployed elsewhere
-    wsRef.current = new WebSocket('ws://localhost:8080/ws');
+    // Determine if we're using HTTPS by checking the protocol
+    const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    
+    // Use secure WebSocket (wss://) if we're on HTTPS, otherwise use ws://
+    const protocol = isSecure ? 'wss://' : 'ws://';
+    const host = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:8080';
+    const backendUrl = host.startsWith('ws://') || host.startsWith('wss://') ? host : `${protocol}${host.replace(/^https?:\/\//, '')}`;
+    
+    wsRef.current = new WebSocket(`${backendUrl}/ws`);
 
     wsRef.current.onopen = () => {
       console.log('WebSocket connected!');

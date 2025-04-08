@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --hostname 0.0.0.0",
+    "dev:secure": "node scripts/generate-cert.js && next dev --turbopack --hostname 0.0.0.0 --experimental-https",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate-cert": "node scripts/generate-cert.js"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.2",
@@ -16,6 +18,7 @@
     "@supabase/auth-helpers-shared": "^0.7.0",
     "@supabase/supabase-js": "^2.49.1",
     "@tabler/icons-react": "^3.30.0",
+    "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",
@@ -29,7 +32,8 @@
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
