@@ -44,8 +44,8 @@ const Sidebar = () => {
     { title: "Profile", icon: <IconUser className="h-6 w-6" />, href: "/dashboard" }, 
     { title: "Instant Free Talk", icon: <IconVideoPlus className="h-6 w-6" />, href: "#" },
     { title: "Topic-Based Chat", icon: <IconHash className="h-6 w-6" />, href: "/topics" },
-    { title: "Friends & Callbacks", icon: <IconUsers className="h-6 w-6" />, href: "#" },
-    { title: "Recent Live Chats", icon: <IconHistory className="h-6 w-6" />, href: "#" },
+    { title: "Friends & Callbacks", icon: <IconUsers className="h-6 w-6" />, href: "/friends" },
+    { title: "Recent Live Chats", icon: <IconHistory className="h-6 w-6" />, href: "/recentChats" },
   ];
 
   if (!hasMounted) return null; // Prevents hydration mismatch
