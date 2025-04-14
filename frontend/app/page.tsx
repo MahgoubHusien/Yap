@@ -41,7 +41,7 @@ const HomePage = () => {
         {/* Buttons */}
         <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
           {/* Primary Button */}
-          <Link href="/video">
+          <Link href="/video-call">
           <button
             onClick={handleHopIn}
             className="w-36 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-3 px-6 shadow-lg hover:shadow-xl transition-transform hover:scale-105"
