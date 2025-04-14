@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import {
   IconHome,
-  IconVideoPlus,
   IconHash,
   IconUsers,
   IconHistory,
@@ -12,6 +11,7 @@ import {
   IconUser,
   IconMenu2,
   IconX,
+  IconMessageCircle,
 } from "@tabler/icons-react";
 
 const Sidebar = () => {
@@ -42,8 +42,8 @@ const Sidebar = () => {
   const links = [
     { title: "Home", icon: <IconHome className="h-6 w-6" />, href: "/" },
     { title: "Profile", icon: <IconUser className="h-6 w-6" />, href: "/dashboard" }, 
-    { title: "Instant Free Talk", icon: <IconVideoPlus className="h-6 w-6" />, href: "#" },
-    { title: "Topic-Based Chat", icon: <IconHash className="h-6 w-6" />, href: "/topics" },
+    { title: "Messages", icon: <IconMessageCircle className="h-6 w-6" />, href: "/chat" },
+    { title: "Topics", icon: <IconHash className="h-6 w-6" />, href: "/topics" },
     { title: "Friends & Callbacks", icon: <IconUsers className="h-6 w-6" />, href: "/friends" },
     { title: "Recent Live Chats", icon: <IconHistory className="h-6 w-6" />, href: "/recentChats" },
   ];
