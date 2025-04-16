@@ -41,7 +41,7 @@ export default function ProfilePage() {
   return (
     <div>
       <h1>👤 Profile Page</h1>
-      <p>Welcome, {session.user.email}</p>
+      <p>Welcome, {session?.user?.email}</p>
     </div>
   );
 }
