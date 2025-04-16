@@ -41,7 +41,7 @@ export function SignupForm({
       } else {
         // If successful, Supabase sends a confirmation email
         alert("Signup successful! Check your email to confirm your account.");
-        window.location.href = "/dashboard"; // Redirect to login page after signup
+        window.location.href = "/create-profile"; // Redirect to login page after signup
       }
     } catch (err) {
       console.error("Signup error:", err);
