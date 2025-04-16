@@ -2,31 +2,42 @@
 
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function ProfilePage() {
   const { session, isLoading } = useSessionContext();
+  const [profileExists, setProfileExists] = useState<boolean | null>(null);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
-    // Only redirect when we know for sure the user is not logged in
-    if (!isLoading && !session) {
+    if (!isLoading && session) {
+      const checkProfile = async () => {
+        const { data, error } = await supabase
+          .from("users") // your custom table
+          .select("id")
+          .eq("email", session.user.email)
+          .single();
+
+        if (error || !data) {
+          setProfileExists(false);
+          router.push("/create-profile"); // send them to profile creation
+        } else {
+          setProfileExists(true); // profile exists
+        }
+      };
+
+      checkProfile();
+    } else if (!isLoading && !session) {
       router.push("/login");
     }
-  }, [session, isLoading, router]);
+  }, [session, isLoading, router, supabase]);
 
-  // While session info is loading from localStorage, show a loading state
-  if (isLoading) {
+  if (isLoading || profileExists === null) {
     return <div>Loading profile...</div>;
   }
 
-  // If not loading anymore, but no session, Supabase says user is logged out
-  if (!session) {
-    return <div>Loading profile...</div>; 
-    // or you could do: router.push("/login") inline here
-  }
-
-  // Otherwise, we have the session and can display the user data
   return (
     <div>
       <h1>👤 Profile Page</h1>
