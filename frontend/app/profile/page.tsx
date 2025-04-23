@@ -1,36 +1,70 @@
 "use client";
 
-import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabaseClient } from "@/lib/supabaseClient";
+import ProfileForm from "@/components/dashboard/ProfileForm"; // Import your ProfileForm component (adjust the path as needed)
 
 export default function ProfilePage() {
-  const { session, isLoading } = useSessionContext();
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Only redirect when we know for sure the user is not logged in
-    if (!isLoading && !session) {
-      router.push("/login");
+    // Get session directly from Supabase auth
+    async function getSession() {
+      setLoading(true);
+      const { data, error } = await supabaseClient.auth.getSession();
+      
+      if (error) {
+        console.error("Error getting session:", error);
+      }
+      
+      setSession(data.session);
+      setLoading(false);
+      
+      // Redirect if no session
+      if (!data.session) {
+        router.push("/login");
+      }
     }
-  }, [session, isLoading, router]);
+    
+    getSession();
+    
+    // Set up auth state change listener
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+      (event, newSession) => {
+        setSession(newSession);
+        
+        // Redirect to login if signed out
+        if (event === 'SIGNED_OUT') {
+          router.push("/login");
+        }
+      }
+    );
+    
+    // Clean up the subscription
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router]);
 
-  // While session info is loading from localStorage, show a loading state
-  if (isLoading) {
+  // While session info is loading, show a loading state
+  if (loading) {
     return <div>Loading profile...</div>;
   }
 
-  // If not loading anymore, but no session, Supabase says user is logged out
+  // If not loading anymore, but no session, user is logged out
   if (!session) {
     return <div>Loading profile...</div>; 
-    // or you could do: router.push("/login") inline here
+    // We'll get redirected by the useEffect above
   }
 
-  // Otherwise, we have the session and can display the user data
+  // Otherwise, we have the session and can display the profile form
   return (
-    <div>
-      <h1>👤 Profile Page</h1>
-      <p>Welcome, {session.user.email}</p>
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-2xl font-bold mb-6">👤 My Profile</h1>
+      <ProfileForm />
     </div>
   );
 }
