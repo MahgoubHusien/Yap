@@ -13,12 +13,14 @@ import {
   IconX,
   IconMessageCircle,
 } from "@tabler/icons-react";
-import { useRouter } from "next/navigation"; // ✅ Correct for App Router
+import { useRouter } from "next/navigation";
+import { supabaseClient } from "@/lib/supabaseClient";
 
 const Sidebar = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isOpen, setIsOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,6 +32,25 @@ const Sidebar = () => {
 
     setTheme(defaultTheme);
     document.documentElement.classList.add(defaultTheme);
+
+    // Check if user is logged in with Supabase
+    const checkSession = async () => {
+      const { data } = await supabaseClient.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkSession();
+    
+    // Set up listener for auth changes
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+      (event, session) => {
+        setIsLoggedIn(!!session);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const toggleTheme = (event: React.MouseEvent) => {
@@ -41,18 +62,13 @@ const Sidebar = () => {
     setTheme(newTheme);
   };
 
-  const isLoggedIn = () => {
-    const token = localStorage.getItem("token");
-    return Boolean(token); // Replace with actual logic if needed
-  };
-
   const links = [
     { title: "Home", icon: <IconHome className="h-6 w-6" />, href: "/" },
     {
       title: "Profile",
       icon: <IconUser className="h-6 w-6" />,
       onClick: () => {
-        if (isLoggedIn()) {
+        if (isLoggedIn) {
           router.push("/dashboard");
         } else {
           router.push("/login");
@@ -129,6 +145,24 @@ const Sidebar = () => {
           >
             {theme === "light" ? <IconMoon className="h-6 w-6" /> : <IconSun className="h-6 w-6" />}
             <span>Theme Toggle</span>
+          </button>
+
+          {/* Conditional Login/Logout Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+              if (isLoggedIn) {
+                supabaseClient.auth.signOut();
+                router.push("/");
+              } else {
+                router.push("/login");
+              }
+            }}
+            className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all w-full text-left"
+          >
+            <IconUser className="h-6 w-6" />
+            <span>{isLoggedIn ? "Sign Out" : "Sign In"}</span>
           </button>
         </nav>
       </div>

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabaseClient } from "@/lib/supabaseClient";
-import ProfilePhotoInput from '../ProfilePhotoInput'; // Adjust the import path as needed
+import ProfilePhotoInput from '../ProfilePhotoInput';
 
 export default function ProfileForm() {
   const [username, setUsername] = useState('');
@@ -10,38 +10,62 @@ export default function ProfileForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   
   // Fetch the current user and their profile data when component mounts
   useEffect(() => {
     const fetchUserAndProfile = async () => {
       setLoading(true);
       
-      // Get current authenticated user
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      
-      if (user) {
-        setUser(user);
+      try {
+        // Get current authenticated user
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser();
         
-        // Try to fetch existing profile data
-        const { data: profileData, error } = await supabaseClient
-          .from('profiles')
-          .select('username, display_name, profile_picture')
-          .eq('id', user.id)
-          .single();
-        
-        if (profileData && !error) {
-          // If profile exists, populate the form
-          setUsername(profileData.username || '');
-          setDisplayName(profileData.display_name || '');
-          
-          // If there's a profile picture, set the preview URL
-          if (profileData.profile_picture) {
-            setPreviewUrl(profileData.profile_picture);
-          }
+        if (userError) {
+          console.error("Error getting user:", userError);
+          setDebugInfo(prev => ({ ...prev, userError }));
+          setLoading(false);
+          return;
         }
+        
+        if (userData.user) {
+          setUser(userData.user);
+          console.log("User found:", userData.user);
+          setDebugInfo(prev => ({ ...prev, user: userData.user }));
+          
+          // Try to fetch existing profile data
+          const { data: profileData, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('username, display_name, profile_picture')
+            .eq('id', userData.user.id)
+            .single();
+          
+          console.log("Profile data:", profileData);
+          console.log("Profile error:", profileError);
+          setDebugInfo(prev => ({ ...prev, profileData, profileError }));
+          
+          if (profileData && !profileError) {
+            // If profile exists, populate the form
+            setUsername(profileData.username || '');
+            setDisplayName(profileData.display_name || '');
+            
+            // If there's a profile picture, set the preview URL
+            if (profileData.profile_picture) {
+              setPreviewUrl(profileData.profile_picture);
+            }
+          } else if (profileError && profileError.code !== 'PGRST116') {
+            // PGRST116 is "no rows returned" which is expected for new users
+            console.error("Error fetching profile:", profileError);
+          }
+        } else {
+          console.warn("No user found in session");
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        setDebugInfo(prev => ({ ...prev, unexpectedError: error }));
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
     
     fetchUserAndProfile();
@@ -73,6 +97,7 @@ export default function ProfileForm() {
     }
     
     setLoading(true);
+    const saveResults: any = {};
     
     try {
       // Check if the username is already taken (if username was changed)
@@ -81,6 +106,13 @@ export default function ProfileForm() {
         .select('id')
         .eq('username', username)
         .neq('id', user.id);
+      
+      saveResults.usernameCheck = { existingUsers, checkError };
+      
+      if (checkError) {
+        console.error("Error checking username:", checkError);
+        throw checkError;
+      }
         
       if (existingUsers && existingUsers.length > 0) {
         alert('Username is already taken. Please choose another one.');
@@ -97,6 +129,8 @@ export default function ProfileForm() {
           .storage
           .from("profile-photos")
           .upload(filePath, profilePicture, { upsert: true });
+        
+        saveResults.upload = { filePath, uploadError };
           
         if (uploadError) {
           console.error("Upload error:", uploadError);
@@ -108,6 +142,8 @@ export default function ProfileForm() {
           .storage
           .from("profile-photos")
           .getPublicUrl(filePath);
+        
+        saveResults.publicUrl = publicData;
           
         photoURL = publicData.publicUrl;
       }
@@ -121,20 +157,28 @@ export default function ProfileForm() {
         updated_at: new Date().toISOString()
       };
       
+      saveResults.profileData = profileData;
+      
       // Upsert the profile data (update if exists, insert if not)
-      const { error } = await supabaseClient
+      const { data: upsertData, error: upsertError } = await supabaseClient
         .from('profiles')
         .upsert(profileData)
         .select();
       
-      if (error) {
-        throw error;
+      saveResults.upsert = { upsertData, upsertError };
+      
+      if (upsertError) {
+        console.error("Upsert error:", upsertError);
+        throw upsertError;
       }
       
+      console.log("Profile saved successfully:", upsertData);
       alert('Profile saved successfully!');
     } catch (error: any) {
+      console.error("Save error:", error);
       alert(`Error saving profile: ${error.message}`);
     } finally {
+      setDebugInfo(prev => ({ ...prev, saveResults }));
       setLoading(false);
     }
   };
@@ -181,6 +225,8 @@ export default function ProfileForm() {
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+
+     
     </section>
   );
 }
