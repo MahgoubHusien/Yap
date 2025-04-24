@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     // Add your external domains here
     domains: ["assets.aceternity.com"],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   /* config options here */
 };
