@@ -15,7 +15,7 @@ Inspired by the lean design of apps like **Monkey**, Yap aims to create meaningf
 ## 🔧 Features
 
 ### ✅ Core Functionality
-- **Free Talk Video Chats** (2–8 users)
+- **Free Talk Video Chats** (2 users)
 - **Topic-Based Rooms** for daily discussions
 - **Real-Time Messaging** with chat history
 - **Friends List** and online status
@@ -39,7 +39,7 @@ Inspired by the lean design of apps like **Monkey**, Yap aims to create meaningf
 ```plaintext
 +-----------------------+        +-------------------------+
 |     User Devices      |        |       Web Browser       |
-|  (Desktop/Mobile)     |<-----> |    Next.js Frontend     |
+|  (Desktop)            |<-----> |    Next.js Frontend     |
 +-----------------------+        +-------------------------+
          |                                 |
          | WebSockets / REST APIs          | HTTP/HTTPS, WebSockets
