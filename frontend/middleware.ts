@@ -1,28 +1,27 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
-import { NextRequest, NextResponse } from "next/server";
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
 export async function middleware(req: NextRequest) {
-  console.log("📌 Middleware triggered for path:", req.nextUrl.pathname);
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient({ req, res })
 
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  // ✅ Attach Supabase session to response before checking session
-  await supabase.auth.getSession(); // Forces cookies to sync
-  const { data: { session } } = await supabase.auth.getSession();
-
-  console.log("🔍 Middleware - Session exists:", !!session);
-
-  if (!session && req.nextUrl.pathname.startsWith("/dashboard")) {
-    console.log("🚨 No session found, redirecting to /login");
-    return NextResponse.redirect(new URL("/login", req.url));
+  // no session? redirect to /login
+  if (!session) {
+    const loginUrl = req.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    return NextResponse.redirect(loginUrl)
   }
 
-  console.log("✅ Session detected, allowing access to:", req.nextUrl.pathname);
-  return res;
+  return res
 }
 
-// ✅ Apply middleware ONLY to protected routes
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*"],
-};
+  // match any path with at least one segment that isn’t login, signup, _next, favicon.ico, etc.
+  matcher: ['/((?!login|signup|_next/static|_next/image|favicon\\.ico).+)'],
+}
