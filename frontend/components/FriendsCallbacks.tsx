@@ -1,4 +1,4 @@
-// FriendsCallbacks.tsx - Fixed with improved status handling
+// FriendsCallbacks.tsx - Fixed version
 'use client'
 
 import React, { useState } from 'react'
@@ -39,29 +39,47 @@ export default function FriendsCallbacks({
     setIsLoading(prev => ({ ...prev, [friend.id]: true }))
     
     try {
+      const { data: currentUser } = await supabase.auth.getUser()
+      if (!currentUser?.user?.id) throw new Error("Not authenticated")
+      
       // Update the friend request status to 'accepted'
       const { error: updateError } = await supabase
         .from('friends')
         .update({ status: 'accepted' })
-        .eq('friend_id', friend.id)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', friend.id)
+        .eq('friend_id', currentUser.user.id)
       
       if (updateError) throw updateError
 
-      // Create the reciprocal friendship record if it doesn't exist
-      const { data: currentUser } = await supabase.auth.getUser()
-      const { error: insertError } = await supabase
+      // First check if the reciprocal relationship exists
+      const { data: existingRel } = await supabase
         .from('friends')
-        .upsert({ 
-          user_id: friend.id, 
-          friend_id: currentUser.user?.id, 
-          status: 'accepted' 
-        }, { 
-          onConflict: 'user_id,friend_id',
-          ignoreDuplicates: false 
-        })
-      
-      if (insertError) throw insertError
+        .select('*')
+        .eq('user_id', currentUser.user.id)
+        .eq('friend_id', friend.id)
+        .single()
+
+      if (existingRel) {
+        // Update existing relationship
+        const { error: updateRecipError } = await supabase
+          .from('friends')
+          .update({ status: 'accepted' })
+          .eq('user_id', currentUser.user.id)
+          .eq('friend_id', friend.id)
+          
+        if (updateRecipError) throw updateRecipError
+      } else {
+        // Insert new relationship
+        const { error: insertError } = await supabase
+          .from('friends')
+          .insert({ 
+            user_id: currentUser.user.id, 
+            friend_id: friend.id, 
+            status: 'accepted' 
+          })
+          
+        if (insertError) throw insertError
+      }
       
       // Update local state
       setPendingRequests(prev => prev.filter(f => f.id !== friend.id))
@@ -70,13 +88,13 @@ export default function FriendsCallbacks({
       // Add notification
       setNotifications(prev => [...prev, `You are now friends with ${friend.username}`])
       
-      // Force reload to reflect changes (temporary solution)
+      // Reload the page after a short delay
       setTimeout(() => {
         window.location.reload()
       }, 1000)
     } catch (error) {
       console.error('Error accepting friend request:', error)
-      alert('Failed to accept friend request: ' + (error as any).message)
+      setNotifications(prev => [...prev, `Failed to accept request: ${(error as any).message}`])
     } finally {
       setIsLoading(prev => ({ ...prev, [friend.id]: false }))
     }
@@ -86,12 +104,15 @@ export default function FriendsCallbacks({
     setIsLoading(prev => ({ ...prev, [friend.id]: true }))
     
     try {
+      const { data: currentUser } = await supabase.auth.getUser()
+      if (!currentUser?.user?.id) throw new Error("Not authenticated")
+      
       // Update the friend request status to 'rejected'
       const { error } = await supabase
         .from('friends')
         .update({ status: 'rejected' })
-        .eq('friend_id', friend.id)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', friend.id)
+        .eq('friend_id', currentUser.user.id)
       
       if (error) throw error
       
@@ -100,11 +121,16 @@ export default function FriendsCallbacks({
       setNotifications(prev => [...prev, `Friend request from ${friend.username} rejected`])
     } catch (error) {
       console.error('Error rejecting friend request:', error)
-      alert('Failed to reject friend request: ' + (error as any).message)
+      setNotifications(prev => [...prev, `Failed to reject request: ${(error as any).message}`])
     } finally {
       setIsLoading(prev => ({ ...prev, [friend.id]: false }))
     }
   }
+
+  // Remove duplicate friend requests by ID
+  const uniquePendingRequests = Array.from(
+    new Map(pendingRequests.map(item => [item.id, item]))
+  ).map(([_, item]) => item)
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -130,13 +156,13 @@ export default function FriendsCallbacks({
         <section className="mb-10">
           <h2 className="text-2xl font-bold mb-4 text-gray-200">Friend Requests</h2>
           
-          {pendingRequests.length === 0 ? (
+          {uniquePendingRequests.length === 0 ? (
             <p className="text-gray-400">No pending friend requests</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {pendingRequests.map((friend, index) => (
+              {uniquePendingRequests.map((friend) => (
                 <div 
-                  key={`pending-${friend.id}-${index}`}
+                  key={`pending-${friend.id}`}
                   className="p-4 border border-gray-700 rounded-lg bg-gray-800"
                 >
                   <div className="flex justify-between items-center">
@@ -183,9 +209,9 @@ export default function FriendsCallbacks({
             <p className="text-gray-400">You haven't added any friends yet</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {acceptedFriends.map((friend, index) => (
+              {acceptedFriends.map((friend) => (
                 <div 
-                  key={`accepted-${friend.id}-${index}`}
+                  key={`accepted-${friend.id}`}
                   className="p-4 border border-red-500 rounded-lg hover:shadow-lg transition-shadow"
                 >
                   <div className="flex items-center mb-2">
@@ -213,9 +239,9 @@ export default function FriendsCallbacks({
           <section>
             <h2 className="text-2xl font-bold mb-4 text-gray-200">Callbacks</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {callbacks.map((callback, index) => (
+              {callbacks.map((callback) => (
                 <div 
-                  key={`callback-${callback.id}-${index}`}
+                  key={`callback-${callback.id}`}
                   className="p-4 border border-gray-700 rounded-lg bg-gray-800"
                 >
                   <p className="font-semibold">Caller ID: {callback.callerId}</p>

@@ -21,6 +21,7 @@ const Sidebar = () => {
           <div className="flex gap-6">
             <Link href="/" className="nav-link">Home</Link>
             <Link href="/topics" className="nav-link">Topics</Link>
+            <Link href="/messages" className="nav-link">Messages</Link>
             <Link href="/about" className="nav-link">About</Link>
           </div>
         </div>
@@ -54,6 +55,7 @@ const Sidebar = () => {
           <nav className="flex flex-col mt-10 space-y-4">
             <Link href="/" className="nav-link" onClick={() => setIsOpen(false)}>🏠 Home</Link>
             <Link href="/topics" className="nav-link" onClick={() => setIsOpen(false)}>🔥 Topics</Link>
+            <Link href="/messages" className="nav-link" onClick={() => setIsOpen(false)}>💬 Messages</Link>
             <Link href="/about" className="nav-link" onClick={() => setIsOpen(false)}>ℹ️ About</Link>
           </nav>
         </div>

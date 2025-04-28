@@ -72,8 +72,8 @@ export default function ChatWindow({ currentUser, selectedUser, selectedUserName
     
     fetchMessages();
     
-    // Set up realtime subscription with proper channel name
-    const channelName = `messages-${Math.min(parseInt(currentUser), parseInt(selectedUser))}-${Math.max(parseInt(currentUser), parseInt(selectedUser))}`;
+    // Create a unique channel name that doesn't depend on numeric ID assumptions
+    const channelName = `chat-${[currentUser, selectedUser].sort().join('-')}`;
     
     try {
       // Subscribe to new messages from the other user
@@ -88,7 +88,12 @@ export default function ChatWindow({ currentUser, selectedUser, selectedUserName
           },
           async (payload) => {
             console.log('Received new message:', payload);
-            setMessages(prev => [...prev, payload.new as MessageType]);
+            
+            // Check if message already exists to avoid duplicates
+            const messageExists = messages.some(msg => msg.id === payload.new.id);
+            if (!messageExists) {
+              setMessages(prev => [...prev, payload.new as MessageType]);
+            }
             
             // Automatically mark as read
             try {
@@ -145,6 +150,8 @@ export default function ChatWindow({ currentUser, selectedUser, selectedUserName
   }, [messages]);
 
   const sendMessage = async (content: string) => {
+    if (!content.trim()) return;
+    
     const newMsg: MessageType = {
       sender: currentUser,
       receiver: selectedUser,

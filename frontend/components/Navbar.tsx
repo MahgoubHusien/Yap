@@ -75,7 +75,7 @@ const Sidebar = () => {
         }
       },
     },
-    { title: "Messages", icon: <IconMessageCircle className="h-6 w-6" />, href: "/chat" },
+    { title: "Messages", icon: <IconMessageCircle className="h-6 w-6" />, href: "/messages" },
     { title: "Topics", icon: <IconHash className="h-6 w-6" />, href: "/topics" },
     { title: "Friends & Callbacks", icon: <IconUsers className="h-6 w-6" />, href: "/friends" },
     { title: "Recent Live Chats", icon: <IconHistory className="h-6 w-6" />, href: "/recentChats" },
