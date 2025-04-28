@@ -14,32 +14,63 @@ export default async function FriendsPage() {
     redirect('/login')
   }
 
-  // 1) Fetch friend relationships for current user
-  const { data: rawFriendRels, error: relError } = await supabase
+  // 1) Fetch accepted friend relationships for current user
+  const { data: acceptedFriendRels, error: acceptedRelError } = await supabase
     .from('friends')
     .select('friend_id, status')
     .eq('user_id', session.user.id)
+    .eq('status', 'accepted')
 
-  if (relError) console.error('Error fetching friend relationships:', relError)
+  if (acceptedRelError) console.error('Error fetching accepted friend relationships:', acceptedRelError)
+  
+  // 2) Fetch pending friend requests for current user
+  const { data: pendingFriendRels, error: pendingRelError } = await supabase
+    .from('friends')
+    .select('user_id, status')
+    .eq('friend_id', session.user.id)
+    .eq('status', 'pending')
 
-  const friendIds = rawFriendRels?.map((r) => r.friend_id) ?? []
+  if (pendingRelError) console.error('Error fetching pending friend requests:', pendingRelError)
 
-  let friends: Friend[] = []
-  if (friendIds.length) {
-    // 2) Fetch profile usernames for those IDs
-    const { data: profiles, error: profError } = await supabase
+  const acceptedFriendIds = acceptedFriendRels?.map((r) => r.friend_id) ?? []
+  const pendingFriendIds = pendingFriendRels?.map((r) => r.user_id) ?? []
+
+  let acceptedFriends: Friend[] = []
+  if (acceptedFriendIds.length) {
+    // Fetch profile usernames for accepted friends
+    const { data: acceptedProfiles, error: profError } = await supabase
       .from('profiles')
       .select('id, username')
-      .in('id', friendIds)
+      .in('id', acceptedFriendIds)
 
-    if (profError) console.error('Error fetching profiles:', profError)
+    if (profError) console.error('Error fetching accepted profiles:', profError)
 
-    friends = rawFriendRels!.map((r) => {
-      const profile = profiles?.find((p) => p.id === r.friend_id)
+    acceptedFriends = acceptedFriendRels!.map((r) => {
+      const profile = acceptedProfiles?.find((p) => p.id === r.friend_id)
       return {
         id: r.friend_id,
         username: profile?.username ?? r.friend_id,
         status: r.status,
+      }
+    })
+  }
+
+  let pendingFriendRequests: Friend[] = []
+  if (pendingFriendIds.length) {
+    // Fetch profile usernames for pending friend requests
+    const { data: pendingProfiles, error: pendingProfError } = await supabase
+      .from('profiles')
+      .select('id, username')
+      .in('id', pendingFriendIds)
+
+    if (pendingProfError) console.error('Error fetching pending profiles:', pendingProfError)
+
+    pendingFriendRequests = pendingFriendRels!.map((r) => {
+      const profile = pendingProfiles?.find((p) => p.id === r.user_id)
+      return {
+        id: r.user_id,
+        username: profile?.username ?? r.user_id,
+        status: 'pending',
       }
     })
   }
@@ -60,5 +91,11 @@ export default async function FriendsPage() {
     callRequestedAt: c.call_requested_at,
   })) ?? []
 
-  return <FriendsCallbacks friends={friends} callbacks={callbacks} />
+  return (
+    <FriendsCallbacks 
+      friends={acceptedFriends} 
+      callbacks={callbacks} 
+      pendingFriendRequests={pendingFriendRequests} 
+    />
+  )
 }
